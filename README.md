@@ -1,37 +1,41 @@
-# 🏡 House Prices Prediction - Advanced Regression Techniques
+# 🏆 Kaggle Competition : House Prices - Advanced Regression Techniques
 
-Ce projet a pour objectif de prédire le prix de vente final de maisons situées à Ames (Iowa) en se basant sur un jeu de données contenant 79 variables explicatives (caractéristiques de la maison, de l'emplacement, de l'année de construction, etc.). 
+Ce dépôt contient ma solution complète pour la célèbre compétition Kaggle **[House Prices - Advanced Regression Techniques](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)**. 
 
-L'approche adoptée couvre l'ensemble du cycle de vie d'un projet de Machine Learning : de l'analyse exploratoire initiale à l'optimisation avancée des modèles.
+L'objectif de cette compétition est de prédire le prix de vente final de maisons situées à Ames (Iowa) en utilisant 79 variables explicatives. Ce projet démontre une approche de bout en bout : de l'analyse exploratoire des données (EDA) jusqu'à l'optimisation avancée des modèles de Machine Learning.
 
 ## 📂 Structure du Projet
 
-Le projet est divisé en trois carnets (notebooks) principaux pour une meilleure lisibilité :
+L'approche est modulaire et divisée en trois carnets (notebooks) :
 
-* **`01_eda.ipynb`** : Analyse Exploratoire des Données (EDA). Visualisation de la distribution de la variable cible (`SalePrice`), identification des valeurs manquantes et détection des valeurs aberrantes (outliers).
-* **`02_processing.ipynb` (Train & Test)** : Nettoyage et préparation des données. 
-  * Imputation des valeurs manquantes.
-  * Transformation logarithmique (`log1p`) de la variable cible pour corriger l'asymétrie.
-  * Encodage des variables catégorielles (One-Hot Encoding).
-  * **Feature Engineering** : Création de variables à fort pouvoir prédictif (`TotalSF`, `HouseAge`, `YearsSinceRemodel`, etc.).
-* **`03_modeling.ipynb`** : Entraînement et évaluation des modèles.
-  * Évaluation robuste via Cross-Validation (5-Fold) sur la métrique **RMSLE**.
-  * Modèles testés : Linear Regression, Ridge, Lasso, Random Forest, XGBoost, LightGBM.
-  * Optimisation des hyperparamètres du meilleur modèle à l'aide d'**Optuna**.
+* **`01_eda.ipynb`** : Analyse Exploratoire des Données (EDA). Étude de la distribution de la cible, détection des valeurs aberrantes (outliers) et analyse des corrélations.
+* **`02_processing.ipynb` (Train & Test)** : Pipeline de préparation des données pour la soumission.
+  * Imputation robuste des valeurs manquantes.
+  * Transformation logarithmique (`log1p`) de la variable `SalePrice`.
+  * **Feature Engineering** ciblé : Création de variables clés (`TotalSF`, `HouseAge`, `YearsSinceRemodel`) pour maximiser le signal prédictif.
+  * Encodage (One-Hot) et alignement strict des dimensions entre les sets de Train et de Test.
+* **`03_modeling.ipynb`** : Entraînement, évaluation et génération de la soumission.
+  * Stratégie de validation : Cross-Validation (5-Fold).
+  * Modèles évalués : Linear Regression, Ridge, Lasso, Random Forest, XGBoost, LightGBM et un réseau de neurones (ANN).
+  * Optimisation bayésienne des hyperparamètres avec **Optuna**.
 
-## 🛠️ Technologies Utilisées
+## 🏅 Résultats et Soumission
+
+La métrique d'évaluation officielle de la compétition est le **RMSLE** (Root Mean Squared Logarithmic Error).
+
+* **Meilleur modèle individuel :** XGBoost
+* **Score Public Kaggle (RMSLE) :** **0.12673**
+
+*(Note : Des expérimentations avec des techniques d'ensembling comme le Stacking sont en cours pour améliorer davantage ce score).*
+
+## 🛠️ Technologies & Outils
 
 * **Langage :** Python 3
-* **Manipulation de données :** Pandas, NumPy
-* **Visualisation :** Matplotlib, Seaborn
-* **Machine Learning :** Scikit-Learn, XGBoost, LightGBM
+* **Data Science Stack :** Pandas, NumPy, Matplotlib, Seaborn
+* **Machine Learning :** Scikit-Learn, XGBoost, LightGBM, TensorFlow/Keras
 * **Optimisation :** Optuna
 
-## 🚀 Résultats
-
-Le modèle **XGBoost** s'est démarqué comme étant le plus performant lors de la validation croisée. Après optimisation, le score RMSLE public obtenu démontre une forte capacité de généralisation du modèle sur des données invisibles.
-
-## ⚙️ Comment utiliser ce projet
+## ⚙️ Reproduire la solution
 
 1. Clonez ce dépôt :
    ```bash
