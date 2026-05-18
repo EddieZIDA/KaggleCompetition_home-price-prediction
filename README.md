@@ -38,4 +38,4 @@ La métrique d'évaluation officielle de la compétition est le **RMSLE** (Root 
 ## Reproduire la solution
 Clonez ce dépôt :
    ```bash
-   git clone [https://github.com/votre-username/nom-du-repo.git](https://github.com/votre-username/nom-du-repo.git)
+   git clone https://github.com/EddieZIDA/KaggleCompetition_home-price-prediction.git
