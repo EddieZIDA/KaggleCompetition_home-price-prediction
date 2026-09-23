@@ -16,7 +16,7 @@ scikit-learn pipeline**, **Optuna-tuned** linear, kernel and gradient-boosting m
 |---|---|
 | **Best CV RMSLE** | **0.1071** ± 0.0080 (Blend (optimised weights), 5-fold) |
 | Best single model | SVR (RBF kernel) — 0.1097 |
-| Previous version of this repo | 0.1204 (and an unusable submission, see [v2 changes](#-what-changed-in-v2)) |
+| Previous version of this repo | 0.1204 CV · **0.12384 on the Kaggle public leaderboard** (single XGBoost); its latest ensemble submission was in log space and unusable, see [v2 changes](#-what-changed-in-v2) |
 | Improvement | **−11 % error** |
 
 ![Model comparison](results/figures/model_comparison.png)
@@ -166,6 +166,7 @@ home_price_prediction/
 
 ## 🎯 Next steps
 
+- Submit `submissions/submission.csv` to measure the v2 public leaderboard score (v1: 0.12384).
 - Nested cross-validation to fully remove the tuning bias from the reported score.
 - Target encoding of `Neighborhood` inside the CV folds; native categorical handling in CatBoost.
 - SHAP values for per-house explanations.
