@@ -119,7 +119,7 @@ les combiner est utile.
 
 <p align="center"><img src="results/figures/feature_importance.png" width="620"></p>
 
-## 🔬 Méthodologie
+##  Méthodologie
 
 **Données** (`src/data.py`)
 - Les 2 maisons de plus de 4 000 pieds carrés vendues moins de 300 k$ (ventes partielles signalées
@@ -158,7 +158,7 @@ optimiste qu'on obtient en optimisant et en évaluant sur les mêmes plis.
 - Les deux sont évalués par une CV externe sur la matrice des prédictions hors pli ; le meilleur est
   réentraîné et utilisé pour la soumission.
 
-## 🧰 Ce qui a changé en v2
+##  Ce qui a changé en v2
 
 Un audit de la v1 a montré que le pipeline ne pouvait pas produire de soumission valide. La v2 est
 une réécriture :
@@ -175,7 +175,7 @@ une réécriture :
 | Scores du README non produits par le code (par ex. 0.1184 en stacking) | résultats invérifiables | chiffres du README générés depuis `results/metrics.json` |
 | Pas de tests, dépendances non figées, TensorFlow requis mais inutilisé | installation fragile | 23 tests pytest, CI, `requirements.txt` figé, TensorFlow retiré |
 
-## 📁 Structure du projet
+##  Structure du projet
 
 ```
 KaggleCompetition_home-price-prediction/
@@ -204,17 +204,16 @@ KaggleCompetition_home-price-prediction/
 └── pyproject.toml
 ```
 
-## 🎯 Pistes d'amélioration
+##  Pistes d'amélioration
 
 - Validation croisée imbriquée, pour retirer complètement le biais du tuning du score publié.
 - Target encoding de `Neighborhood` à l'intérieur des plis de CV ; gestion native des catégories dans CatBoost.
 - Valeurs SHAP pour expliquer la prédiction de chaque maison.
 - Moyenne sur plusieurs graines pour les modèles boostés.
 
-## 👤 Auteur
+##  Auteur
 
-Projet individuel : tout le travail (analyse, pipeline, modélisation, tests et documentation) a été
-réalisé par **Wend Kouni Eddie Eliel ZIDA** ([GitHub](https://github.com/EddieZIDA) · [LinkedIn](https://linkedin.com/in/eddiezida)).
+Projet individuel : **Wend Kouni Eddie Eliel ZIDA** ([GitHub](https://github.com/EddieZIDA) · [LinkedIn](https://linkedin.com/in/eddiezida)).
 
 Données : Kaggle *House Prices: Advanced Regression Techniques* (Dean De Cock, jeu de données Ames
 Housing). Projet pédagogique.
