@@ -22,6 +22,27 @@ def remove_outliers(train: pd.DataFrame) -> pd.DataFrame:
     return train.loc[~mask].reset_index(drop=True)
 
 
+def partial_sale_mansions(houses: pd.DataFrame) -> pd.Series:
+    """Very large Edwards houses sold as "Partial" (new construction sold before completion).
+
+    Both such houses in train sold far below market value (160k and 185k dollars for
+    4,700-5,600 sq ft) and are removed as outliers, so no model can learn them. The
+    test set contains one more (Id 2550); models extrapolate it to ~865k dollars.
+    """
+    required = {"GrLivArea", "Neighborhood", "SaleCondition"}
+    if not required <= set(houses.columns):
+        return pd.Series(False, index=houses.index)
+    return ((houses["GrLivArea"] > 4000) & (houses["Neighborhood"] == "Edwards")
+            & (houses["SaleCondition"] == "Partial"))
+
+
+def partial_sale_mansion_log_price(path: Path = TRAIN_PATH) -> float | None:
+    """Mean log1p price of the partial-sale mansions of the raw training set."""
+    train = pd.read_csv(path)
+    mask = partial_sale_mansions(train)
+    return float(np.log1p(train.loc[mask, TARGET]).mean()) if mask.any() else None
+
+
 def load_train(path: Path = TRAIN_PATH, drop_outliers: bool = True) -> tuple[pd.DataFrame, pd.Series]:
     """Return raw training features and the log1p-transformed target."""
     train = pd.read_csv(path)

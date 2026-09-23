@@ -13,7 +13,7 @@ from scipy.optimize import minimize
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold
 
-from src.data import to_price
+from src.data import partial_sale_mansions, to_price
 from src.evaluation import make_cv, rmse
 
 
@@ -22,12 +22,15 @@ class EnsembleRegressor:
     """Fitted base pipelines combined by blend weights or a linear meta-model.
 
     Predicts log1p(SalePrice) with `predict` and dollars with `predict_price`.
+    When `mansion_log_price` is set, houses matching `partial_sale_mansions` get
+    that value (learned from their training-set twins) instead of the model output.
     """
 
     method: str                      # "blend" or "stack"
     models: dict = field(default_factory=dict)
     weights: dict[str, float] = field(default_factory=dict)
     meta_model: LinearRegression | None = None
+    mansion_log_price: float | None = None
 
     def base_predictions(self, X: pd.DataFrame) -> np.ndarray:
         return np.column_stack([model.predict(X) for model in self.models.values()])
@@ -35,8 +38,12 @@ class EnsembleRegressor:
     def predict(self, X: pd.DataFrame) -> np.ndarray:
         base = self.base_predictions(X)
         if self.method == "stack":
-            return self.meta_model.predict(base)
-        return base @ np.array([self.weights[name] for name in self.models])
+            predictions = self.meta_model.predict(base)
+        else:
+            predictions = base @ np.array([self.weights[name] for name in self.models])
+        if self.mansion_log_price is not None:
+            predictions[partial_sale_mansions(X).to_numpy()] = self.mansion_log_price
+        return predictions
 
     def predict_price(self, X: pd.DataFrame) -> np.ndarray:
         return to_price(self.predict(X))

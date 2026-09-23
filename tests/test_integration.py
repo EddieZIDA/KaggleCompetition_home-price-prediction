@@ -1,10 +1,11 @@
 """End-to-end checks on the real Kaggle files (skipped when data/raw is empty)."""
 
 import numpy as np
+import pandas as pd
 import pytest
 
-from src.config import N_TEST_ROWS
-from src.data import load_test, load_train, to_price
+from src.config import N_TEST_ROWS, TEST_PATH, TRAIN_PATH
+from src.data import load_test, load_train, partial_sale_mansions, remove_outliers, to_price
 from src.evaluation import cross_validate
 from src.models import build_model
 from tests.conftest import requires_kaggle_data
@@ -29,3 +30,10 @@ def test_every_test_house_gets_a_price():
 def test_ridge_beats_previous_pipeline():
     X, y = load_train()
     assert cross_validate(build_model("ridge"), X, y).mean < 0.12
+
+
+def test_mansion_rule_matches_the_removed_outliers_and_one_test_house():
+    train, test = pd.read_csv(TRAIN_PATH), pd.read_csv(TEST_PATH)
+    removed = set(train.Id) - set(remove_outliers(train).Id)
+    assert set(train.loc[partial_sale_mansions(train), "Id"]) == removed == {524, 1299}
+    assert test.loc[partial_sale_mansions(test), "Id"].tolist() == [2550]

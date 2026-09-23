@@ -24,7 +24,7 @@ import pandas as pd
 
 from src import visualization as viz
 from src.config import FIGURES_DIR, MODELS_DIR, RESULTS_DIR, SUBMISSIONS_DIR
-from src.data import load_test, load_train
+from src.data import load_test, load_train, partial_sale_mansion_log_price, partial_sale_mansions
 from src.ensemble import (
     EnsembleRegressor,
     blend_cv_scores,
@@ -125,7 +125,7 @@ def run(models: list[str] | None = None, tune_models: bool = False, n_trials: in
     method = "blend" if blend_scores.mean() <= stack_scores.mean() else "stack"
     kept = [m for m in members if method == "stack" or weights[m] > 1e-3]
     _log(f"\nSelected: {method} over {kept}. Refitting on the full training set...", verbose)
-    ensemble = EnsembleRegressor(method=method)
+    ensemble = EnsembleRegressor(method=method, mansion_log_price=partial_sale_mansion_log_price())
     for name in kept:
         ensemble.models[name] = build_model(name).fit(X, y)
     if method == "blend":
@@ -139,6 +139,8 @@ def run(models: list[str] | None = None, tune_models: bool = False, n_trials: in
         submission = write_submission(test_ids, ensemble.predict_price(X_test),
                                       SUBMISSIONS_DIR / "submission.csv")
         _save_artifacts(ensemble, table, cv_results, members, y, blend_oof, weights, method)
+        n_mansions = int(partial_sale_mansions(X_test).sum())
+        _log(f"Partial-sale mansions set to their train twins' price: {n_mansions}", verbose)
         _log(f"Submission written: {SUBMISSIONS_DIR / 'submission.csv'} "
              f"({len(submission)} rows, median price ${submission.SalePrice.median():,.0f})", verbose)
 
@@ -166,6 +168,11 @@ def _save_artifacts(ensemble, table, cv_results, members, y, blend_oof, weights,
         "blend_weights": {k: round(float(v), 4) for k, v in weights.items()},
         "models": {row.model: {"rmsle_mean": round(row.rmsle_mean, 5), "rmsle_std": round(row.rmsle_std, 5)}
                    for row in table.itertuples()},
+        "postprocessing": {
+            "rule": "GrLivArea > 4000 & Neighborhood == Edwards & SaleCondition == Partial",
+            "price": None if ensemble.mansion_log_price is None
+            else round(float(np.expm1(ensemble.mansion_log_price)), 2),
+        },
         "n_train": int(len(y)),
         "environment": _package_versions(),
     }

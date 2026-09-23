@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.data import remove_outliers, to_price
+from src.data import partial_sale_mansions, remove_outliers, to_price
 from src.ensemble import EnsembleRegressor, blend_cv_scores, optimize_weights
 from src.submission import InvalidSubmissionError, validate_submission
 
@@ -63,3 +63,20 @@ def test_blend_ensemble_predicts_weighted_log_price():
     X = pd.DataFrame({"x": [0, 1]})
     assert np.allclose(ensemble.predict(X), 11.75)
     assert np.allclose(ensemble.predict_price(X), np.expm1(11.75))
+
+
+def test_partial_sale_mansions_rule():
+    houses = pd.DataFrame({
+        "GrLivArea": [5000, 5000, 5000, 1500],
+        "Neighborhood": ["Edwards", "NoRidge", "Edwards", "Edwards"],
+        "SaleCondition": ["Partial", "Partial", "Normal", "Partial"],
+    })
+    assert partial_sale_mansions(houses).tolist() == [True, False, False, False]
+    assert not partial_sale_mansions(pd.DataFrame({"x": [1]})).any()   # missing columns: no match
+
+
+def test_mansion_override_only_touches_matching_rows():
+    ensemble = EnsembleRegressor("blend", {"a": _Constant(13.5)}, {"a": 1.0}, mansion_log_price=12.0)
+    X = pd.DataFrame({"GrLivArea": [5000, 5000], "Neighborhood": ["Edwards", "NoRidge"],
+                      "SaleCondition": ["Partial", "Partial"]})
+    assert np.allclose(ensemble.predict(X), [12.0, 13.5])

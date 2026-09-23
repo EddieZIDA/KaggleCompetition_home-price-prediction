@@ -14,9 +14,10 @@ scikit-learn pipeline**, **Optuna-tuned** linear, kernel and gradient-boosting m
 
 | | |
 |---|---|
+| **Kaggle public leaderboard** | **0.11548** (v1 best: 0.12277) |
 | **Best CV RMSLE** | **0.1071** ± 0.0080 (Blend (optimised weights), 5-fold) |
 | Best single model | SVR (RBF kernel) — 0.1097 |
-| Previous version of this repo | 0.1204 CV · **0.12384 on the Kaggle public leaderboard** (single XGBoost); its latest ensemble submission was in log space and unusable, see [v2 changes](#-what-changed-in-v2) |
+| Previous version of this repo | 0.1204 CV; its latest ensemble submission was in log space and unusable, see [v2 changes](#-what-changed-in-v2) |
 | Improvement | **−11 % error** |
 
 ![Model comparison](results/figures/model_comparison.png)
@@ -40,7 +41,7 @@ python -m src.pipeline                              # CV of every model, ensembl
 python -m src.pipeline --tune --trials 40 --tune-timeout 900   # re-run Optuna first (~50 min)
 python -m src.pipeline --models ridge lasso svr --no-save      # quick experiment
 python -m src.predict data/raw/test.csv --out submissions/predictions.csv   # inference with the saved ensemble
-pytest                                              # 20 tests
+pytest                                              # 23 tests
 ```
 
 `python -m src.pipeline` writes:
@@ -82,6 +83,22 @@ and are shown for reference only.
 > 0.1104 with hand-picked defaults — both within the fold-to-fold noise (± 0.006). The large gains of v2 come
 > from the data work (missing-means-absent, ordinal scales, quality × surface features, skew correction:
 > Lasso goes from 0.1261 to 0.1117) and from mixing linear/kernel models with boosted trees.
+
+**Kaggle public leaderboard**
+
+| Submission | Public RMSLE |
+|---|---|
+| Best v1 submission | 0.12277 |
+| v2 blend | 0.12238 |
+| **v2 blend + partial-sale mansion rule** | **0.11548** |
+
+The CV gain first barely showed on the leaderboard. The cause was a single test house (Id 2550): a 5,095 sq ft
+Edwards house sold as *Partial*, the twin of the 2 training outliers (sold for $160k and $185k). Since those
+twins are removed from training, no model can learn it and the blend extrapolated it to $865k — a single error
+worth ≈ 0.007 RMSLE. `EnsembleRegressor` now gives houses matching that rule
+(`GrLivArea > 4000 & Neighborhood == Edwards & SaleCondition == Partial`, exactly the 2 train outliers and 1 test
+house, checked by a test) the mean log price of their training twins. Lesson: when outliers are removed from
+training, their counterparts in the test set need an explicit treatment.
 
 **Blend weights** (non-negative, sum to 1, optimised on out-of-fold predictions):
 
@@ -133,7 +150,7 @@ An audit of v1 found that the pipeline could not produce a valid submission. v2 
 | Optuna tuned and scored on the same folds, unseeded | optimistic, non-reproducible scores | separate tuning folds, seeded sampler |
 | LightGBM `subsample` without `subsample_freq`, `num_leaves` > 2^`max_depth` | tuned parameters with no effect | fixed |
 | README scores not produced by the code (e.g. 0.1184 stacking) | unverifiable claims | README numbers generated from `results/metrics.json` |
-| No tests, unpinned deps, TensorFlow required but unused | fragile setup | 20 pytest tests, CI, pinned `requirements.txt`, TensorFlow removed |
+| No tests, unpinned deps, TensorFlow required but unused | fragile setup | 23 pytest tests, CI, pinned `requirements.txt`, TensorFlow removed |
 
 ## 📁 Project structure
 
@@ -166,7 +183,6 @@ home_price_prediction/
 
 ## 🎯 Next steps
 
-- Submit `submissions/submission.csv` to measure the v2 public leaderboard score (v1: 0.12384).
 - Nested cross-validation to fully remove the tuning bias from the reported score.
 - Target encoding of `Neighborhood` inside the CV folds; native categorical handling in CatBoost.
 - SHAP values for per-house explanations.

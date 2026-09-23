@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-23T16:52:43+00:00",
+  "generated_at": "2026-09-23T17:44:43+00:00",
   "metric": "RMSLE (RMSE of log1p(SalePrice)), 5-fold CV",
   "selected_method": "blend",
   "best": {
@@ -67,6 +67,10 @@
       "rmsle_mean": 0.20527,
       "rmsle_std": 0.15296
     }
+  },
+  "postprocessing": {
+    "rule": "GrLivArea > 4000 & Neighborhood == Edwards & SaleCondition == Partial",
+    "price": 171930.22
   },
   "n_train": 1458,
   "environment": {
