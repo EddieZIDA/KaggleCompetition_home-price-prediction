@@ -1,6 +1,42 @@
+# Environments
 venv/
-__pycache__/
-*.csv
-*.pkl
-*.joblib
+.venv/
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Kaggle data (download it, see README) and generated submissions
+data/raw/
+data/processed/
+data/*.csv
+submissions/
+
+# Fitted models are rebuilt by `python -m src.pipeline`; tuned params are versioned
+models/*.pkl
+models/*.joblib
+models/*.keras
+!models/params/*.json
+
+# Results are versioned so the README figures and scores stay visible on GitHub
+!results/
+!results/figures/*.png
+!results/*.csv
+!results/*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Files superseded by v2 (kept locally, not versioned)
+archive_v1/

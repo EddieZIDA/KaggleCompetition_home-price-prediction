@@ -1,3 +1,8 @@
 {
-    "python-envs.pythonProjects": []
+    "python-envs.pythonProjects": [],
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": ["tests"],
+    "flake8.args": ["--max-line-length=110"],
+    "jupyter.notebookFileRoot": "${workspaceFolder}/notebooks"
 }
