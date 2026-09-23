@@ -1,22 +1,25 @@
-# 🏠 House Price Prediction — Kaggle *House Prices: Advanced Regression Techniques*
+# 🏠 House Price Prediction (Kaggle *House Prices: Advanced Regression Techniques*)
 
-[![tests](https://github.com/EddieZIDA/Kaggle-home-price-prediction/actions/workflows/tests.yml/badge.svg)](https://github.com/EddieZIDA/Kaggle-home-price-prediction/actions/workflows/tests.yml)
+[![tests](https://github.com/EddieZIDA/KaggleCompetition_home-price-prediction/actions/workflows/tests.yml/badge.svg)](https://github.com/EddieZIDA/KaggleCompetition_home-price-prediction/actions/workflows/tests.yml)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.8-orange)
 ![XGBoost](https://img.shields.io/badge/XGBoost-3.2-red)
 ![LightGBM](https://img.shields.io/badge/LightGBM-4.6-green)
 ![CatBoost](https://img.shields.io/badge/CatBoost-1.2-yellow)
 ![Optuna](https://img.shields.io/badge/Optuna-4.8-blue)
+![Kaggle public LB](https://img.shields.io/badge/Kaggle%20public%20LB-0.11548%20RMSLE-20BEFF?logo=kaggle&logoColor=white)
 
 Predicting the sale price of 1,459 houses in Ames (Iowa) from 79 raw features, with a **leak-free
 scikit-learn pipeline**, **Optuna-tuned** linear, kernel and gradient-boosting models, and an
 **honestly evaluated ensemble**.
 
+Individual project, designed and built by **Wend Kouni Eddie Eliel ZIDA**.
+
 | | |
 |---|---|
 | **Kaggle public leaderboard** | **0.11548** (v1 best: 0.12277) |
-| **Best CV RMSLE** | **0.1071** ± 0.0080 (Blend (optimised weights), 5-fold) |
-| Best single model | SVR (RBF kernel) — 0.1097 |
+| **Best CV RMSLE** | **0.1071** ± 0.0080 (blend with optimised weights, 5-fold) |
+| Best single model | SVR (RBF kernel): 0.1097 |
 | Previous version of this repo | 0.1204 CV; its latest ensemble submission was in log space and unusable, see [v2 changes](#-what-changed-in-v2) |
 | Improvement | **−11 % error** |
 
@@ -25,8 +28,8 @@ scikit-learn pipeline**, **Optuna-tuned** linear, kernel and gradient-boosting m
 ## 🚀 Quickstart
 
 ```bash
-git clone https://github.com/EddieZIDA/Kaggle-home-price-prediction.git
-cd Kaggle-home-price-prediction
+git clone https://github.com/EddieZIDA/KaggleCompetition_home-price-prediction.git
+cd KaggleCompetition_home-price-prediction
 python -m venv .venv
 .venv\Scripts\activate            # Linux/macOS: source .venv/bin/activate
 pip install -r requirements-dev.txt
@@ -62,14 +65,14 @@ out-of-fold: preprocessing, blend weights and the stacking meta-model never see 
 
 | Model | CV RMSLE | v1 (README) |
 |---|---|---|
-| **Blend (optimised weights)** | 0.1071 ± 0.0080 | — |
-| **Stacking (positive linear meta-model)** | 0.1072 ± 0.0080 | — |
-| SVR (RBF kernel) | 0.1097 ± 0.0098 | — |
+| **Blend (optimised weights)** | 0.1071 ± 0.0080 | n/a |
+| **Stacking (positive linear meta-model)** | 0.1072 ± 0.0080 | n/a |
+| SVR (RBF kernel) | 0.1097 ± 0.0098 | n/a |
 | XGBoost | 0.1114 ± 0.0055 | 0.1246 |
 | Lasso | 0.1117 ± 0.0069 | 0.1261 |
-| ElasticNet | 0.1119 ± 0.0070 | — |
-| CatBoost | 0.1122 ± 0.0057 | — |
-| Gradient Boosting (Huber) | 0.1129 ± 0.0088 | — |
+| ElasticNet | 0.1119 ± 0.0070 | n/a |
+| CatBoost | 0.1122 ± 0.0057 | n/a |
+| Gradient Boosting (Huber) | 0.1129 ± 0.0088 | n/a |
 | LightGBM | 0.1130 ± 0.0077 | 0.1295 |
 | Ridge | 0.1138 ± 0.0079 | 0.1297 |
 | Random Forest *(baseline)* | 0.1281 ± 0.0084 | 0.1412 |
@@ -80,7 +83,7 @@ and are shown for reference only.
 
 > **Honest note on tuning.** Because Optuna searches on different folds than the ones used for reporting,
 > the table shows what tuning really buys: little. Tuned XGBoost scores 0.1114 on the evaluation folds versus
-> 0.1104 with hand-picked defaults — both within the fold-to-fold noise (± 0.006). The large gains of v2 come
+> 0.1104 with hand-picked defaults, both within the fold-to-fold noise (± 0.006). The large gains of v2 come
 > from the data work (missing-means-absent, ordinal scales, quality × surface features, skew correction:
 > Lasso goes from 0.1261 to 0.1117) and from mixing linear/kernel models with boosted trees.
 
@@ -94,7 +97,7 @@ and are shown for reference only.
 
 The CV gain first barely showed on the leaderboard. The cause was a single test house (Id 2550): a 5,095 sq ft
 Edwards house sold as *Partial*, the twin of the 2 training outliers (sold for $160k and $185k). Since those
-twins are removed from training, no model can learn it and the blend extrapolated it to $865k — a single error
+twins are removed from training, no model can learn it and the blend extrapolated it to $865k, a single error
 worth ≈ 0.007 RMSLE. `EnsembleRegressor` now gives houses matching that rule
 (`GrLivArea > 4000 & Neighborhood == Edwards & SaleCondition == Partial`, exactly the 2 train outliers and 1 test
 house, checked by a test) the mean log price of their training twins. Lesson: when outliers are removed from
@@ -113,7 +116,7 @@ Linear/kernel models and boosted trees make fairly different errors, which is wh
 ## 🔬 Methodology
 
 **Data** (`src/data.py`)
-- The 2 houses > 4,000 sq ft sold for < $300k (partial sales flagged by the dataset author) are removed — **train only**; every test house is predicted.
+- The 2 houses > 4,000 sq ft sold for < $300k (partial sales flagged by the dataset author) are removed (**train only**); every test house is predicted.
 - Target: `log1p(SalePrice)`, applied in exactly one place; `expm1` in exactly one place.
 
 **Features** (`src/features.py`, all learned on the training fold only)
@@ -155,7 +158,7 @@ An audit of v1 found that the pipeline could not produce a valid submission. v2 
 ## 📁 Project structure
 
 ```
-home_price_prediction/
+KaggleCompetition_home-price-prediction/
 ├── src/
 │   ├── config.py          # paths, seeds, CV settings
 │   ├── data.py            # loading, outliers, target transform
@@ -190,6 +193,6 @@ home_price_prediction/
 
 ## 👤 Author
 
-**Eddie ZIDA** — [GitHub](https://github.com/EddieZIDA) · [LinkedIn](https://linkedin.com/in/eddiezida)
+Individual project: all the work (analysis, pipeline, modelling, tests and documentation) was done by **Wend Kouni Eddie Eliel ZIDA** ([GitHub](https://github.com/EddieZIDA) · [LinkedIn](https://linkedin.com/in/eddiezida)).
 
 Data: Kaggle *House Prices: Advanced Regression Techniques* (Dean De Cock, Ames Housing dataset). Educational project.
