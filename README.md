@@ -1,4 +1,4 @@
-# 🏠 House Price Prediction (Kaggle *House Prices: Advanced Regression Techniques*)
+# 🏠 Prédiction du prix des maisons (Kaggle *House Prices: Advanced Regression Techniques*)
 
 [![tests](https://github.com/EddieZIDA/KaggleCompetition_home-price-prediction/actions/workflows/tests.yml/badge.svg)](https://github.com/EddieZIDA/KaggleCompetition_home-price-prediction/actions/workflows/tests.yml)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
@@ -9,65 +9,66 @@
 ![Optuna](https://img.shields.io/badge/Optuna-4.8-blue)
 ![Kaggle public LB](https://img.shields.io/badge/Kaggle%20public%20LB-0.11548%20RMSLE-20BEFF?logo=kaggle&logoColor=white)
 
-Predicting the sale price of 1,459 houses in Ames (Iowa) from 79 raw features, with a **leak-free
-scikit-learn pipeline**, **Optuna-tuned** linear, kernel and gradient-boosting models, and an
-**honestly evaluated ensemble**.
+Prédiction du prix de vente de 1 459 maisons à Ames (Iowa) à partir de 79 variables brutes, avec un
+**pipeline scikit-learn sans fuite de données**, des modèles linéaires, à noyau et de gradient boosting
+**optimisés avec Optuna**, et un **ensemble évalué honnêtement**.
 
-Individual project, designed and built by **Wend Kouni Eddie Eliel ZIDA**.
+Projet individuel, conçu et réalisé par **Wend Kouni Eddie Eliel ZIDA**.
 
 | | |
 |---|---|
-| **Kaggle public leaderboard** | **0.11548** (v1 best: 0.12277) |
-| **Best CV RMSLE** | **0.1071** ± 0.0080 (blend with optimised weights, 5-fold) |
-| Best single model | SVR (RBF kernel): 0.1097 |
-| Previous version of this repo | 0.1204 CV; its latest ensemble submission was in log space and unusable, see [v2 changes](#-what-changed-in-v2) |
-| Improvement | **−11 % error** |
+| **Leaderboard public Kaggle** | **0.11548** (meilleur score v1 : 0.12277) |
+| **Meilleur RMSLE en validation croisée** | **0.1071** ± 0.0080 (blend à poids optimisés, 5 plis) |
+| Meilleur modèle seul | SVR (noyau RBF) : 0.1097 |
+| Version précédente du dépôt | 0.1204 en CV ; sa dernière soumission d'ensemble était en échelle log et inutilisable, voir [les changements de la v2](#-ce-qui-a-changé-en-v2) |
+| Amélioration | **−11 % d'erreur** |
 
-![Model comparison](results/figures/model_comparison.png)
+![Comparaison des modèles](results/figures/model_comparison.png)
 
-## 🚀 Quickstart
+## 🚀 Démarrage rapide
 
 ```bash
 git clone https://github.com/EddieZIDA/KaggleCompetition_home-price-prediction.git
 cd KaggleCompetition_home-price-prediction
 python -m venv .venv
-.venv\Scripts\activate            # Linux/macOS: source .venv/bin/activate
+.venv\Scripts\activate            # Linux/macOS : source .venv/bin/activate
 pip install -r requirements-dev.txt
 ```
 
-Download `train.csv` and `test.csv` from the
-[competition page](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data)
-into `data/raw/`, then:
+Télécharger `train.csv` et `test.csv` depuis la
+[page de la compétition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data)
+dans `data/raw/`, puis :
 
 ```bash
-python -m src.pipeline                              # CV of every model, ensemble, submission (~5 min)
-python -m src.pipeline --tune --trials 40 --tune-timeout 900   # re-run Optuna first (~50 min)
-python -m src.pipeline --models ridge lasso svr --no-save      # quick experiment
-python -m src.predict data/raw/test.csv --out submissions/predictions.csv   # inference with the saved ensemble
+python -m src.pipeline                              # CV de tous les modèles, ensemble, soumission (~5 min)
+python -m src.pipeline --tune --trials 40 --tune-timeout 900   # relance d'abord Optuna (~50 min)
+python -m src.pipeline --models ridge lasso svr --no-save      # expérience rapide
+python -m src.predict data/raw/test.csv --out submissions/predictions.csv   # inférence avec l'ensemble sauvegardé
 pytest                                              # 23 tests
 ```
 
-`python -m src.pipeline` writes:
+`python -m src.pipeline` produit :
 
-| Output | Content |
+| Sortie | Contenu |
 |---|---|
-| `submissions/submission.csv` | Kaggle submission, validated (1,459 rows, unique ids, prices in dollars) |
-| `models/final_ensemble.joblib` | fitted ensemble, `predict_price(raw_dataframe)` |
-| `models/params/*.json` | tuned hyper-parameters (versioned) |
-| `results/metrics.json`, `results/cv_results.csv` | scores, blend weights, library versions |
-| `results/oof_predictions.csv` | out-of-fold predictions of every model |
-| `results/figures/*.png` | figures used in this README |
+| `submissions/submission.csv` | soumission Kaggle validée (1 459 lignes, identifiants uniques, prix en dollars) |
+| `models/final_ensemble.joblib` | ensemble entraîné, `predict_price(raw_dataframe)` |
+| `models/params/*.json` | hyper-paramètres optimisés (versionnés) |
+| `results/metrics.json`, `results/cv_results.csv` | scores, poids du blend, versions des bibliothèques |
+| `results/oof_predictions.csv` | prédictions hors pli (out-of-fold) de chaque modèle |
+| `results/figures/*.png` | figures utilisées dans ce README |
 
-## 📈 Results
+## 📈 Résultats
 
-5-fold cross-validation, RMSLE (= RMSE on `log1p(SalePrice)`, the Kaggle metric). Every score is
-out-of-fold: preprocessing, blend weights and the stacking meta-model never see the fold they are scored on.
+Validation croisée à 5 plis, RMSLE (= RMSE sur `log1p(SalePrice)`, la métrique de Kaggle). Tous les
+scores sont hors pli : le prétraitement, les poids du blend et le méta-modèle du stacking ne voient
+jamais le pli sur lequel ils sont évalués.
 
-| Model | CV RMSLE | v1 (README) |
+| Modèle | RMSLE CV | v1 (ancien README) |
 |---|---|---|
-| **Blend (optimised weights)** | 0.1071 ± 0.0080 | n/a |
-| **Stacking (positive linear meta-model)** | 0.1072 ± 0.0080 | n/a |
-| SVR (RBF kernel) | 0.1097 ± 0.0098 | n/a |
+| **Blend (poids optimisés)** | 0.1071 ± 0.0080 | n/a |
+| **Stacking (méta-modèle linéaire positif)** | 0.1072 ± 0.0080 | n/a |
+| SVR (noyau RBF) | 0.1097 ± 0.0098 | n/a |
 | XGBoost | 0.1114 ± 0.0055 | 0.1246 |
 | Lasso | 0.1117 ± 0.0069 | 0.1261 |
 | ElasticNet | 0.1119 ± 0.0070 | n/a |
@@ -75,124 +76,145 @@ out-of-fold: preprocessing, blend weights and the stacking meta-model never see 
 | Gradient Boosting (Huber) | 0.1129 ± 0.0088 | n/a |
 | LightGBM | 0.1130 ± 0.0077 | 0.1295 |
 | Ridge | 0.1138 ± 0.0079 | 0.1297 |
-| Random Forest *(baseline)* | 0.1281 ± 0.0084 | 0.1412 |
-| Linear Regression *(baseline, unregularised)* | 0.2053 ± 0.1530 | diverged (1e11) |
+| Random Forest (référence) | 0.1281 ± 0.0084 | 0.1412 |
+| Régression linéaire (référence, non régularisée) | 0.2053 ± 0.1530 | divergente (1e11) |
 
-v1 scores are the ones claimed in the previous README; they were produced by a different, leaky pipeline
-and are shown for reference only.
+Les scores v1 sont ceux annoncés dans l'ancien README ; ils provenaient d'un autre pipeline, avec
+fuite de données, et ne sont donnés qu'à titre indicatif.
 
-> **Honest note on tuning.** Because Optuna searches on different folds than the ones used for reporting,
-> the table shows what tuning really buys: little. Tuned XGBoost scores 0.1114 on the evaluation folds versus
-> 0.1104 with hand-picked defaults, both within the fold-to-fold noise (± 0.006). The large gains of v2 come
-> from the data work (missing-means-absent, ordinal scales, quality × surface features, skew correction:
-> Lasso goes from 0.1261 to 0.1117) and from mixing linear/kernel models with boosted trees.
+> **Remarque honnête sur le tuning.** Comme Optuna cherche sur d'autres plis que ceux utilisés pour
+> les scores publiés, le tableau montre ce que le tuning apporte réellement : peu de chose. XGBoost
+> optimisé obtient 0.1114 sur les plis d'évaluation contre 0.1104 avec des valeurs choisies à la main,
+> deux scores dans le bruit d'un pli à l'autre (± 0.006). Les gros gains de la v2 viennent du travail
+> sur les données (valeur manquante = absence, échelles ordinales, variables qualité × surface,
+> correction de l'asymétrie : le Lasso passe de 0.1261 à 0.1117) et du mélange de modèles
+> linéaires/à noyau avec des arbres boostés.
 
-**Kaggle public leaderboard**
+**Leaderboard public Kaggle**
 
-| Submission | Public RMSLE |
+| Soumission | RMSLE public |
 |---|---|
-| Best v1 submission | 0.12277 |
-| v2 blend | 0.12238 |
-| **v2 blend + partial-sale mansion rule** | **0.11548** |
+| Meilleure soumission v1 | 0.12277 |
+| Blend v2 | 0.12238 |
+| Blend v2 + règle « grande maison en vente partielle » | **0.11548** |
 
-The CV gain first barely showed on the leaderboard. The cause was a single test house (Id 2550): a 5,095 sq ft
-Edwards house sold as *Partial*, the twin of the 2 training outliers (sold for $160k and $185k). Since those
-twins are removed from training, no model can learn it and the blend extrapolated it to $865k, a single error
-worth ≈ 0.007 RMSLE. `EnsembleRegressor` now gives houses matching that rule
-(`GrLivArea > 4000 & Neighborhood == Edwards & SaleCondition == Partial`, exactly the 2 train outliers and 1 test
-house, checked by a test) the mean log price of their training twins. Lesson: when outliers are removed from
-training, their counterparts in the test set need an explicit treatment.
+Au départ, le gain obtenu en CV se voyait à peine sur le leaderboard. La cause était une seule maison
+du jeu de test (Id 2550) : une maison de 5 095 pieds carrés à Edwards, vendue en `Partial`, jumelle
+des 2 valeurs aberrantes d'entraînement (vendues 160 k$ et 185 k$). Ces jumelles étant retirées de
+l'entraînement, aucun modèle ne pouvait l'apprendre et le blend l'extrapolait à 865 k$, une seule
+erreur valant ≈ 0.007 de RMSLE. `EnsembleRegressor` attribue désormais aux maisons qui vérifient cette
+règle (`GrLivArea > 4000 & Neighborhood == Edwards & SaleCondition == Partial`, soit exactement les
+2 valeurs aberrantes d'entraînement et 1 maison de test, vérifié par un test) le prix log moyen de
+leurs jumelles d'entraînement. Leçon : quand on retire des valeurs aberrantes de l'entraînement,
+leurs équivalents dans le jeu de test demandent un traitement explicite.
 
-**Blend weights** (non-negative, sum to 1, optimised on out-of-fold predictions):
+**Poids du blend** (positifs, de somme 1, optimisés sur les prédictions hors pli) :
 
 <p align="center"><img src="results/figures/blend_weights.png" width="560"></p>
 
-Linear/kernel models and boosted trees make fairly different errors, which is why mixing them helps.
+Les modèles linéaires/à noyau et les arbres boostés font des erreurs assez différentes, c'est pourquoi
+les combiner est utile.
 
-![Out-of-fold predictions](results/figures/oof_predictions.png)
+![Prédictions hors pli](results/figures/oof_predictions.png)
 
 <p align="center"><img src="results/figures/feature_importance.png" width="620"></p>
 
-## 🔬 Methodology
+## 🔬 Méthodologie
 
-**Data** (`src/data.py`)
-- The 2 houses > 4,000 sq ft sold for < $300k (partial sales flagged by the dataset author) are removed (**train only**); every test house is predicted.
-- Target: `log1p(SalePrice)`, applied in exactly one place; `expm1` in exactly one place.
+**Données** (`src/data.py`)
+- Les 2 maisons de plus de 4 000 pieds carrés vendues moins de 300 k$ (ventes partielles signalées
+  par l'auteur du jeu de données) sont retirées, **dans le jeu d'entraînement uniquement** ; toutes
+  les maisons de test sont prédites.
+- Cible : `log1p(SalePrice)`, appliqué à un seul endroit ; `expm1` à un seul endroit.
 
-**Features** (`src/features.py`, all learned on the training fold only)
-- *Missing means absent*: for garage, basement, fireplace, pool, fence… a missing value means "none" (the EDA shows the 81 missing `GarageType` are exactly the 81 houses with `GarageArea = 0`). They become `"None"` / `0`, not the mode.
-- `LotFrontage` imputed with the median of its neighbourhood; `GarageYrBlt` of garage-less houses (and the `2207` typo in test) set to `YearBuilt`.
-- Quality scales (`Po` → `Ex`, basement finish, garage finish, functionality…) encoded as **ordinals**; `MSSubClass` and `MoSold` treated as categories.
-- 15 engineered features: `TotalSF`, `QualTotalSF` (quality × surface), `QualGrLivArea`, `TotalBathrooms`, `HouseAge`, `RemodAge`, `TotalPorchSF`, `OverallScore`, `IsNew`, `IsRemodeled`, `HasGarage`, `HasBsmt`, `Has2ndFlr`, `HasFireplace`, `HasPool`.
-- One-hot encoding learned on train (`handle_unknown="infrequent_if_exist"`, rare levels grouped).
-- For linear models / SVR: `log1p` of skewed features (skewness learned on train) and `RobustScaler`.
+**Variables** (`src/features.py`, toutes apprises sur le pli d'entraînement uniquement)
+- *Valeur manquante = absence* : pour le garage, le sous-sol, la cheminée, la piscine, la clôture…
+  une valeur manquante signifie « aucun » (l'EDA montre que les 81 `GarageType` manquants sont
+  exactement les 81 maisons avec `GarageArea = 0`). Elles deviennent `"None"` / `0`, pas le mode.
+- `LotFrontage` imputé par la médiane de son quartier ; `GarageYrBlt` des maisons sans garage (et la
+  faute de frappe `2207` du jeu de test) remplacé par `YearBuilt`.
+- Échelles de qualité (`Po` → `Ex`, finition du sous-sol, finition du garage, fonctionnalité…)
+  encodées en **ordinal** ; `MSSubClass` et `MoSold` traitées comme des catégories.
+- 15 variables construites : `TotalSF`, `QualTotalSF` (qualité × surface), `QualGrLivArea`,
+  `TotalBathrooms`, `HouseAge`, `RemodAge`, `TotalPorchSF`, `OverallScore`, `IsNew`, `IsRemodeled`,
+  `HasGarage`, `HasBsmt`, `Has2ndFlr`, `HasFireplace`, `HasPool`.
+- Encodage one-hot appris sur l'entraînement (`handle_unknown="infrequent_if_exist"`, modalités rares
+  regroupées).
+- Pour les modèles linéaires et le SVR : `log1p` des variables asymétriques (asymétrie apprise sur
+  l'entraînement) et `RobustScaler`.
 
-**Models** (`src/models.py`): Ridge, Lasso, ElasticNet, SVR (RBF), Gradient Boosting (Huber loss), XGBoost,
-LightGBM, CatBoost; plain linear regression and random forest as baselines. Each model is a single
-`Pipeline(preprocessing → estimator)`, so cross-validation refits the preprocessing on every fold.
+**Modèles** (`src/models.py`) : Ridge, Lasso, ElasticNet, SVR (RBF), Gradient Boosting (perte de
+Huber), XGBoost, LightGBM, CatBoost ; régression linéaire simple et random forest comme références.
+Chaque modèle est un unique `Pipeline(prétraitement → estimateur)`, si bien que la validation croisée
+réentraîne le prétraitement à chaque pli.
 
-**Tuning** (`src/tuning.py`): Optuna TPE with a fixed seed, run on **different CV splits** (seed 2024) than
-the ones used to report scores (seed 42), to limit the optimistic bias of tuning and evaluating on the same folds.
+**Tuning** (`src/tuning.py`) : Optuna TPE avec une graine fixe, exécuté sur **d'autres découpages de
+CV** (graine 2024) que ceux utilisés pour publier les scores (graine 42), afin de limiter le biais
+optimiste qu'on obtient en optimisant et en évaluant sur les mêmes plis.
 
-**Ensembling** (`src/ensemble.py`)
-- *Blend*: non-negative weights summing to 1, found with SLSQP on out-of-fold predictions.
-- *Stack*: linear meta-model with positive coefficients on out-of-fold predictions.
-- Both are scored with an outer CV over the out-of-fold matrix; the better one is refitted and used for the submission.
+**Ensembles** (`src/ensemble.py`)
+- *Blend* : poids positifs de somme 1, trouvés avec SLSQP sur les prédictions hors pli.
+- *Stack* : méta-modèle linéaire à coefficients positifs sur les prédictions hors pli.
+- Les deux sont évalués par une CV externe sur la matrice des prédictions hors pli ; le meilleur est
+  réentraîné et utilisé pour la soumission.
 
-## 🧰 What changed in v2
+## 🧰 Ce qui a changé en v2
 
-An audit of v1 found that the pipeline could not produce a valid submission. v2 is a rewrite:
+Un audit de la v1 a montré que le pipeline ne pouvait pas produire de soumission valide. La v2 est
+une réécriture :
 
-| v1 problem | Impact | v2 |
+| Problème de la v1 | Impact | v2 |
 |---|---|---|
-| `log1p` applied twice to `SalePrice` (processing notebook + modeling notebook) | all notebook scores meaningless; submission contained prices ≈ **11.7 $** | single transform in `src/data.py`; `validate_submission` rejects log-space prices |
-| Test set encoded with its **own** `OneHotEncoder` (`drop="first"`) | 99 % of test houses encoded as *floor furnace*, `CompShg` roofs as *clay tile*, 729 fireplaces as *excellent* | one preprocessing pipeline fitted on train, reused on test |
-| Missing values imputed by the mode | 690 houses without fireplace rated *Good* | "missing = absent" handling + ordinal scales |
-| Test imputed with test statistics; outliers removed from test in `src/` | leakage; submission with missing rows | all statistics learned on train; outliers train-only |
-| `python -m src.*` commands crashed (`KeyError`, feature mismatch) or saved **unfitted** models | README commands unusable | single tested CLI: `python -m src.pipeline` |
-| Optuna tuned and scored on the same folds, unseeded | optimistic, non-reproducible scores | separate tuning folds, seeded sampler |
-| LightGBM `subsample` without `subsample_freq`, `num_leaves` > 2^`max_depth` | tuned parameters with no effect | fixed |
-| README scores not produced by the code (e.g. 0.1184 stacking) | unverifiable claims | README numbers generated from `results/metrics.json` |
-| No tests, unpinned deps, TensorFlow required but unused | fragile setup | 23 pytest tests, CI, pinned `requirements.txt`, TensorFlow removed |
+| `log1p` appliqué deux fois à `SalePrice` (notebook de prétraitement + notebook de modélisation) | tous les scores des notebooks sans valeur ; la soumission contenait des prix ≈ 11.7 $ | une seule transformation dans `src/data.py` ; `validate_submission` rejette les prix en échelle log |
+| Jeu de test encodé avec son propre `OneHotEncoder` (`drop="first"`) | 99 % des maisons de test encodées avec un chauffage au sol, les toits `CompShg` comme des tuiles d'argile, 729 cheminées notées excellentes | un seul pipeline de prétraitement ajusté sur l'entraînement, réutilisé sur le test |
+| Valeurs manquantes imputées par le mode | 690 maisons sans cheminée notées « Good » | gestion « manquant = absent » + échelles ordinales |
+| Test imputé avec les statistiques du test ; valeurs aberrantes retirées du test dans `src/` | fuite de données ; soumission avec des lignes manquantes | toutes les statistiques apprises sur l'entraînement ; valeurs aberrantes retirées de l'entraînement uniquement |
+| Les commandes `python -m src.*` plantaient (`KeyError`, variables incohérentes) ou sauvegardaient des modèles non entraînés | commandes du README inutilisables | une seule CLI testée : `python -m src.pipeline` |
+| Optuna optimisait et évaluait sur les mêmes plis, sans graine | scores optimistes, non reproductibles | plis de tuning séparés, échantillonneur avec graine |
+| LightGBM : `subsample` sans `subsample_freq`, `num_leaves` > 2^`max_depth` | paramètres optimisés sans effet | corrigé |
+| Scores du README non produits par le code (par ex. 0.1184 en stacking) | résultats invérifiables | chiffres du README générés depuis `results/metrics.json` |
+| Pas de tests, dépendances non figées, TensorFlow requis mais inutilisé | installation fragile | 23 tests pytest, CI, `requirements.txt` figé, TensorFlow retiré |
 
-## 📁 Project structure
+## 📁 Structure du projet
 
 ```
 KaggleCompetition_home-price-prediction/
 ├── src/
-│   ├── config.py          # paths, seeds, CV settings
-│   ├── data.py            # loading, outliers, target transform
+│   ├── config.py          # chemins, graines, paramètres de CV
+│   ├── data.py            # chargement, valeurs aberrantes, transformation de la cible
 │   ├── features.py        # HouseFeatureEngineer, SkewCorrector, build_preprocessor()
-│   ├── models.py          # model zoo (Pipeline per model) + tuned params loading
-│   ├── tuning.py          # Optuna search spaces
-│   ├── evaluation.py      # out-of-fold cross-validation
+│   ├── models.py          # catalogue de modèles (un Pipeline par modèle) + chargement des paramètres optimisés
+│   ├── tuning.py          # espaces de recherche Optuna
+│   ├── evaluation.py      # validation croisée hors pli
 │   ├── ensemble.py        # blend / stack + EnsembleRegressor
-│   ├── submission.py      # submission writing + validation
-│   ├── visualization.py   # README figures
-│   ├── pipeline.py        # CLI: python -m src.pipeline
-│   └── predict.py         # CLI: python -m src.predict
+│   ├── submission.py      # écriture et validation de la soumission
+│   ├── visualization.py   # figures du README
+│   ├── pipeline.py        # CLI : python -m src.pipeline
+│   └── predict.py         # CLI : python -m src.predict
 ├── notebooks/
-│   ├── 01_eda.ipynb             # exploratory analysis
-│   ├── 02_preprocessing.ipynb   # the preprocessing pipeline, step by step
-│   └── 03_modeling.ipynb        # CV, ensemble, error analysis, submission
-├── tests/                 # pytest (synthetic data + integration tests on the Kaggle files)
-├── models/params/         # tuned hyper-parameters (versioned)
-├── results/               # metrics + figures (versioned)
-├── data/raw/              # Kaggle CSVs (not versioned)
-├── .github/workflows/     # CI: ruff + pytest
+│   ├── 01_eda.ipynb             # analyse exploratoire
+│   ├── 02_preprocessing.ipynb   # le pipeline de prétraitement, étape par étape
+│   └── 03_modeling.ipynb        # CV, ensemble, analyse des erreurs, soumission
+├── tests/                 # pytest (données synthétiques + tests d'intégration sur les fichiers Kaggle)
+├── models/params/         # hyper-paramètres optimisés (versionnés)
+├── results/               # métriques + figures (versionnées)
+├── data/raw/              # CSV Kaggle (non versionnés)
+├── .github/workflows/     # CI : ruff + pytest
 ├── requirements.txt / requirements-dev.txt
 └── pyproject.toml
 ```
 
-## 🎯 Next steps
+## 🎯 Pistes d'amélioration
 
-- Nested cross-validation to fully remove the tuning bias from the reported score.
-- Target encoding of `Neighborhood` inside the CV folds; native categorical handling in CatBoost.
-- SHAP values for per-house explanations.
-- Seed averaging of the boosted models.
+- Validation croisée imbriquée, pour retirer complètement le biais du tuning du score publié.
+- Target encoding de `Neighborhood` à l'intérieur des plis de CV ; gestion native des catégories dans CatBoost.
+- Valeurs SHAP pour expliquer la prédiction de chaque maison.
+- Moyenne sur plusieurs graines pour les modèles boostés.
 
-## 👤 Author
+## 👤 Auteur
 
-Individual project: all the work (analysis, pipeline, modelling, tests and documentation) was done by **Wend Kouni Eddie Eliel ZIDA** ([GitHub](https://github.com/EddieZIDA) · [LinkedIn](https://linkedin.com/in/eddiezida)).
+Projet individuel : tout le travail (analyse, pipeline, modélisation, tests et documentation) a été
+réalisé par **Wend Kouni Eddie Eliel ZIDA** ([GitHub](https://github.com/EddieZIDA) · [LinkedIn](https://linkedin.com/in/eddiezida)).
 
-Data: Kaggle *House Prices: Advanced Regression Techniques* (Dean De Cock, Ames Housing dataset). Educational project.
+Données : Kaggle *House Prices: Advanced Regression Techniques* (Dean De Cock, jeu de données Ames
+Housing). Projet pédagogique.
